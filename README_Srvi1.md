@@ -1,7 +1,7 @@
 # pro-asixc1a-g4
 Github del projecte transversal
 
-# 📘 Documentació d'instal·lació i configuració: Elasticsearch, Kibana i Auditbeat (versió 8.17.4)
+# 📘 Servei 3: Elasticsearch, Kibana i Auditbeat (versió 8.17.4)
 
 ## 🖥️ Entorn del sistema
 
@@ -111,4 +111,65 @@ sudo apt update && sudo apt upgrade -y
 ## ✅ Pas 5: Accedir a la web de kibana
 
 ![Captura de pantalla de 2025-05-23 12-55-50](https://github.com/user-attachments/assets/3b6cea78-2640-4c7a-852d-bc298587ca31)
+
+---
+
+
+# 📘 Servei 4: Nfs
+
+
+## 📦 **1. Instalación de Paquetes**
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install nfs-kernel-server -y
+```
+
+## 📂 **2. Preparación del Directorio Compartido**
+```bash
+sudo mkdir -p /mnt/nfs
+sudo chown nobody:nogroup /mnt/nfs
+sudo chmod 777 /mnt/nfs  # Ajustar permisos según necesidades
+```
+
+## ⚙️ **3. Configuración de Exportaciones NFS**
+Editar el archivo `/etc/exports`:
+```bash
+sudo nano /etc/exports
+```
+![image](https://github.com/user-attachments/assets/0cd1e0d8-81ad-4fb0-a7f8-9a832216c949)
+
+
+## 🔄 **4. Aplicar Configuración**
+```bash
+sudo exportfs -arv
+sudo systemctl restart nfs-kernel-server
+sudo systemctl enable nfs-kernel-server
+```
+
+## ✔️ **5. Verificación del Servidor**
+```bash
+showmount -e localhost
+sudo exportfs -v
+sudo systemctl status nfs-kernel-server
+```
+![image](https://github.com/user-attachments/assets/0b30f119-0562-418b-848b-14e3eb62125c)
+
+## 💻 **6. Configuración del Cliente NFS**
+### Instalación:
+```bash
+sudo apt install nfs-common -y
+```
+
+### Montaje Temporal:
+```bash
+sudo mkdir -p /mnt/nfs_client
+sudo mount -t nfs 44.207.251.233:/mnt/nfs /mnt/nfs_client 
+```
+
+### Montaje Permanente (fstab):
+```bash
+echo 44.207.251.233:/mnt/nfs  /mnt/nfs_client  nfs  defaults,_netdev  0  0" | sudo tee -a /etc/fstab
+sudo mount -a
+```
+
 
