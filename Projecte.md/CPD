@@ -71,11 +71,8 @@ En groc, podem veure el circuit elèctric que porta energia a tots els punts nec
   - Base de dades (PostgreSQL) | Ubuntu Server | r6g.large (Graviton, RAM optimitzada)
   - Servidor web (Apache/Nginx) | Ubuntu Server | t4g.medium
   - Elasticsearch + Kibana | Ubuntu Server | c7g.xlarge
-  - File server i backups | Windows Server | m6i.large + Amazon FSx
-  - Directori actiu i DNS | Windows Server | t3.medium + AWS Directory Service
-- **Còpia de seguretat automàtica**:
-  - S3 + S3 Glacier
-  - Versionat i replicació multi-AZ
+  - Directori actiu i DNS | Ubuntu Server | t3.medium + AWS Directory Service
+
 
 ![Foto dels servidors al núvol](foto-servidors-nucl.jpg)
 
