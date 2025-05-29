@@ -138,7 +138,8 @@ Editar el archivo `/etc/exports`:
 ```bash
 sudo nano /etc/exports
 ```
-![image](https://github.com/user-attachments/assets/0cd1e0d8-81ad-4fb0-a7f8-9a832216c949)
+![image](https://github.com/user-attachments/assets/1b5e99f8-3766-4f05-950f-1e64f3fd8dda)
+
 
 
 ### 🔄 **4. Aplicar Configuración**
