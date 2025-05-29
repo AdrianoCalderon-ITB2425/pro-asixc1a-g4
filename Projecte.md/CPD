@@ -1,0 +1,107 @@
+Aquí podem veure en el cablejat vermell el sistema antiincendis per gas, ja que no és recomanable utilitzar aigua ni la retirada total d’oxigen a la sala.  
+En groc, podem veure el circuit elèctric que porta energia a tots els punts necessaris, inclòs el generador en cas que hagi de repartir energia.
+
+
+### 1. Ubicació física i estructura del CPD
+- **Ubicació**: Soterrani, zona protegida amb accés restringit. A l’edifici de CaixaBank, a la planta -4. Av. Diagonal 621-629.
+- **Mesures de seguretat física**:
+  - Vidres tintats i blindats.
+  - Control d’accés biomètric + targetes RFID.
+  - Videovigilància 24/7 amb càmeres IP d’alta resolució.
+  - Identitat discreta: sense senyalització externa ni finestres visibles.
+- **Distribució**:
+  - Racks de mida mitjana-gran, ben espaiats.
+  - Cablejat per conductes tècnics, etiquetat per color i funció.
+  - Fibra òptica predominant + una mica de coure (patch).
+  - Accés superior i inferior mitjançant terra i sostre tècnic.
+
+![Foto de la ubicació i estructura del CPD](foto-ubicacio-estructura-cpd.jpg)
+
+### 2. Climatització i eficiència energètica
+- **Sistema de refrigeració principal**: Vertiv Liebert DSE (free-cooling + sense ús d’aigua).
+- **Climatització perimetral redundant N+1**.
+- **Temperatura/Humitat controlades**: 20–24 °C / 45–55 % HR.
+- **Optimització natural**: Circulació d’aire passiva aprofitant la pressió negativa i el disseny tèrmic.
+- **Contenció de passadissos freds/calents**.
+
+![Foto del sistema de climatització](foto-sistema-climatitzacio.jpg)
+
+### 3. Racks i infraestructura de xarxa
+- **Racks**: Vertiv VR Rack 42U – pany electrònic amb obertura manual en emergències.
+- **Disseny modular amb organització accessible**.
+- **Equipament als racks**:
+  - Patch panels: Belden Modular Cat6a / LC per a FO.
+  - Switches: TP-Link Omada SG6654X amb gestió L3 i 10 Gb SFP+.
+- **Monitoratge ambiental**: Sensors de temperatura, humitat i vibració.
+
+![Foto de la infraestructura de xarxa](foto-infraestructura-xarxa.jpg)
+
+### 4. Infraestructura elèctrica
+- **SAI (UPS)**: Eaton 9PX 11kVA (doble conversió, amb bateria d’1 hora d’autonomia).
+- **Generador de suport**: Generac Industrial 150kW gas natural, arrencada automàtica en 10 s.
+- **Xarxa elèctrica**: Redundant A/B per a racks + distribució mitjançant PDU intel·ligents.
+- **Cablejat elèctric**: THHN/THWN-2 en tubs EMT galvanitzats (diferents calibres segons potència): Són cables de coure amb alta resistència tèrmica i aigua, protegits dins tubs metàl·lics per evitar danys i interferències, assegurant una distribució elèctrica segura i fiable dins del CPD.
+
+![Foto de la infraestructura elèctrica](foto-infraestructura-electrica.jpg)
+
+### 5. Seguretat física i lògica
+- **Física**:
+  - Accessos biomètrics i videovigilància IP.
+  - Detectors de fum tipus VESDA.
+  - Extinció amb gas Novec 1230 (no danya el maquinari).
+  - Vies d’evacuació senyalitzades.
+- **Lògica**:
+  - Autenticació 2FA (Windows i Linux).
+  - Firewalls NGFW (a AWS: AWS Network Firewall).
+  - Còpies de seguretat automatitzades (AWS Backup + S3 Glacier).
+  - Monitoratge: Amazon CloudWatch + Kibana + Zabbix.
+  - Configuració RAID (RAID 10 i 5 en bases de dades).
+  - VPN IPsec per a accés remot a equips del CPD.
+  - Antiincendis: Novec 1230 (FK-5-1-12), sistema de supressió del foc per gas.
+
+![Foto de les mesures de seguretat](foto-seguretat.jpg)
+
+### 6. Servidors al núvol – AWS
+- **Tot està virtualitzat a AWS, fent servir instàncies EC2 sobre**:
+  - Ubuntu Server 22.04 LTS per a servidors Linux.
+  - Windows Server 2022 Datacenter per a entorns Windows.
+- **Serveis configurats**:
+  - **Rol** | **SO** | **Instància EC2 recomanada**
+  - Àudio i vídeo (streaming) | Ubuntu Server | m6i.xlarge (4 vCPU, 16 GB)
+  - Base de dades (PostgreSQL) | Ubuntu Server | r6g.large (Graviton, RAM optimitzada)
+  - Servidor web (Apache/Nginx) | Ubuntu Server | t4g.medium
+  - Elasticsearch + Kibana | Ubuntu Server | c7g.xlarge
+  - File server i backups | Windows Server | m6i.large + Amazon FSx
+  - Directori actiu i DNS | Windows Server | t3.medium + AWS Directory Service
+- **Còpia de seguretat automàtica**:
+  - S3 + S3 Glacier
+  - Versionat i replicació multi-AZ
+
+![Foto dels servidors al núvol](foto-servidors-nucl.jpg)
+
+### 7. Monitoratge i gestió
+- **AWS CloudWatch**: Registres, ús de CPU, RAM, xarxa.
+- **Elastic Stack (ELK)**: Centralització d’esdeveniments amb panells.
+- **Zabbix**: Monitoratge personalitzat de serveis clau.
+- **Grafana + Prometheus (opcional)**: Anàlisi visual.
+
+![Foto del sistema de monitoratge](foto-monitoratge.jpg)
+
+### 8. Sostenibilitat
+- **Energia verda contractada per AWS (100 % renovable per a 2025)**.
+- **Ús de contenció tèrmica + equips amb certificat ENERGY STAR**.
+- **Apagat automàtic dels equips de xarxa fora de l’horari**.
+- **Virtualització per reduir maquinari físic**.
+- **Cablejat curt i optimitzat**.
+- **El disseny del CPD està orientat a garantir un funcionament sostenible i eficient, minimitzant l’impacte ambiental i optimitzant els recursos energètics i materials**.
+
+![Foto de les mesures de sostenibilitat](foto-sostenibilitat.jpg)
+
+#### 8.1. Eficiència energètica
+- Es fa ús de la contenció de passadissos freds i calents, que permet separar els fluxos d’aire fred i calent, reduïnt significativament la demanda energètica del sistema de climatització.
+- El sistema de refrigeració principal, Vertiv Liebert DSE, utiliza free-cooling (refrigerar amb aire exterior) i no consumeix aigua, la qual cosa augmenta l’eficiència i redueix l’impacte ambiental.
+- La distribució elèctrica es realitza mitjançant PDU intel·ligents i xarxes redundants A/B, que permeten un control precís i una optimització del consum energètic.
+
+![Foto de l'eficiència energètica](foto-eficiencia-energetica.jpg)
+
+#### 8.2. Reducció de l’impact
