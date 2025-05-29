@@ -174,4 +174,176 @@ echo 44.207.251.233:/mnt/nfs  /mnt/nfs_client  nfs  defaults,_netdev  0  0" | su
 sudo mount -a
 ```
 
+---
 
+# 📘 Serveis 3 i 4: DNS i Nginx
+
+## 📚 Taula de Continguts
+1. [Instal·lació de DNS](#-instal·lació-de-dns)
+2. [Instal·lació de Nginx](#-instal·lació-de-nginx)  
+3. [Configuració DNS](#%EF%B8%8F-configuració-dns)  
+4. [Configuració Nginx](#-configuració-nginx)  
+5. [Integració DNS + Nginx](#-integració-dns--nginx)
+
+---
+
+## 🔧 Instal·lació de DNS
+```bash
+# Actualitzar repositoris
+sudo apt update
+
+# Instal·lar BIND9 i utilitats
+sudo apt install bind9 bind9utils bind9-doc
+
+# Verificar instal·lació
+systemctl status bind9
+```
+### 📁 Estructura d'Arxius DNS
+```
+/etc/bind/
+├── named.conf           # Configuració principal
+├── named.conf.local     # Zones locals
+├── named.conf.options   # Opcions globals
+└── zones/               # Arxius de zona
+    ├── db.example.com
+    └── db.192.168.1
+```
+
+---
+
+## 🌐 Instal·lació de Nginx
+
+```bash
+# Actualitzar repositoris
+sudo apt update
+
+# Instal·lar Nginx
+sudo apt install nginx
+
+# Iniciar i habilitar servei
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+# Verificar estat
+sudo systemctl status nginx
+```
+### 📁 Estructura d'Arxius Nginx
+```
+/etc/nginx/
+├── nginx.conf              # Configuració principal
+├── sites-available/        # Llocs disponibles
+├── sites-enabled/          # Llocs habilitats
+├── conf.d/                 # Configuracions addicionals
+└── /var/www/html/          # Directori web per defecte
+```
+
+---
+
+## ⚙️ Configuració DNS
+
+### 🔧 Configuració Principal (`/etc/bind/named.conf.options`)
+```bind
+options {
+    directory "/var/cache/bind";
+    
+    // Configurar forwarders (DNS públics)
+    forwarders {
+        8.8.8.8;
+        8.8.4.4;
+        1.1.1.1;
+    };
+    
+    // Configuracions de seguretat
+    allow-recursion { localhost; 192.168.1.0/24; };
+    allow-query { localhost; 192.168.1.0/24; };
+    
+    // IPv6
+    listen-on-v6 { any; };
+    
+    // Deshabilitar transferències de zona
+    allow-transfer { none; };
+};
+```
+
+### � Configuració de Zones (`/etc/bind/named.conf.local`)
+```bind
+// Zona directa
+zone "example.com" {
+    type master;
+    file "/etc/bind/zones/db.example.com";
+};
+
+// Zona inversa
+zone "1.168.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.192.168.1";
+};
+```
+
+### 📝 Arxiu de Zona Directa (`/etc/bind/zones/db.example.com`)
+```bind
+$TTL    604800
+@       IN      SOA     ns1.example.com. admin.example.com. (
+                        2024052701      ; Serial
+                        604800          ; Refresh
+                        86400           ; Retry
+                        2419200         ; Expire
+                        604800 )       ; Negative Cache TTL
+
+; Servidors de noms
+@       IN      NS      ns1.example.com.
+
+; Registres A
+ns1     IN      A       192.168.1.10
+www     IN      A       192.168.1.20
+web     IN      A       192.168.1.20
+mail    IN      A       192.168.1.30
+
+; Registre MX
+@       IN      MX      10 mail.example.com.
+
+; Registre CNAME
+ftp     IN      CNAME   www.example.com.
+```
+
+---
+
+## 🔨 Configuració Nginx
+
+### � Lloc Web Principal (`/etc/nginx/sites-available/default`)
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com www.example.com;
+    
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+    
+    server_tokens off;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+}
+```
+
+
+---
+
+## 🔗 Integració DNS + Nginx
+
+### 1️⃣ Configurar Registres DNS
+```bind
+www     IN A     192.168.1.20    ; Servidor web principal
+app     IN A     192.168.1.20    ; Aplicació web
+api     IN A     192.168.1.20    ; API
+static  IN A     192.168.1.21    ; Contingut estàtic
+```
+---
