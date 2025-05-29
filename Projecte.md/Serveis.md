@@ -5,7 +5,7 @@ Github del projecte transversal
 
 # 📘 Servei 1: Elasticsearch, Kibana i Auditbeat (versió 8.17.4)
 
-## 🖥️ Entorn del sistema
+### 🖥️ Entorn del sistema
 
 - **Sistema operatiu:** Ubuntu Server
 - **Usuari dedicat:** `elastic` amb permisos d'administrador
@@ -14,13 +14,13 @@ Github del projecte transversal
 
 ---
 
-## 0. 📋 Prerequisits
+### 0. 📋 Prerequisits
 
 ```bash
 sudo apt update && sudo apt upgrade -y
 ```
 
-## 🌟 Pas 1: Creació d'usuari i preparació inicial
+### 🌟 Pas 1: Creació d'usuari i preparació inicial
 
 1. He creat un usuari específic per gestionar els serveis d'Elastic:
    ```bash
@@ -44,7 +44,7 @@ sudo apt update && sudo apt upgrade -y
 ![image](https://github.com/user-attachments/assets/b3f8a032-a4d1-453e-b427-277ed6161a14)
 
 
-## 📦 Pas 2: Descàrrega i descompressió dels components
+### 📦 Pas 2: Descàrrega i descompressió dels components
 
 1. Descàrrega dels paquets Elastic Stack versió 8.17.4:
    ```bash
@@ -63,7 +63,7 @@ sudo apt update && sudo apt upgrade -y
 
 ---
 
-## 🌐 Pas 3: Configuració
+### 🌐 Pas 3: Configuració
 
 1. Configuració d'elasticsearch.yml
  
@@ -86,7 +86,7 @@ sudo apt update && sudo apt upgrade -y
    ![image](https://github.com/user-attachments/assets/8911f159-5360-4e99-a539-4095721aea29)
 
 
-## 📥 Pas 4: Executem elastic per obtenir les claus de Kibana
+### 📥 Pas 4: Executem elastic per obtenir les claus de Kibana
 
    ```bash
    ./bin/elasticsearch
@@ -110,7 +110,7 @@ sudo apt update && sudo apt upgrade -y
    sudo ./auditbeat -e
    ```
 
-## ✅ Pas 5: Accedir a la web de kibana
+### ✅ Pas 5: Accedir a la web de kibana
 
 ![Captura de pantalla de 2025-05-23 12-55-50](https://github.com/user-attachments/assets/3b6cea78-2640-4c7a-852d-bc298587ca31)
 
@@ -120,20 +120,20 @@ sudo apt update && sudo apt upgrade -y
 # 📘 Servei 2: Nfs
 
 
-## 📦 **1. Instalación de Paquetes**
+### 📦 **1. Instalación de Paquetes**
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install nfs-kernel-server -y
 ```
 
-## 📂 **2. Preparación del Directorio Compartido**
+### 📂 **2. Preparación del Directorio Compartido**
 ```bash
 sudo mkdir -p /mnt/nfs
 sudo chown nobody:nogroup /mnt/nfs
 sudo chmod 777 /mnt/nfs  # Ajustar permisos según necesidades
 ```
 
-## ⚙️ **3. Configuración de Exportaciones NFS**
+### ⚙️ **3. Configuración de Exportaciones NFS**
 Editar el archivo `/etc/exports`:
 ```bash
 sudo nano /etc/exports
@@ -141,14 +141,14 @@ sudo nano /etc/exports
 ![image](https://github.com/user-attachments/assets/0cd1e0d8-81ad-4fb0-a7f8-9a832216c949)
 
 
-## 🔄 **4. Aplicar Configuración**
+### 🔄 **4. Aplicar Configuración**
 ```bash
 sudo exportfs -arv
 sudo systemctl restart nfs-kernel-server
 sudo systemctl enable nfs-kernel-server
 ```
 
-## ✔️ **5. Verificación del Servidor**
+### ✔️ **5. Verificación del Servidor**
 ```bash
 showmount -e localhost
 sudo exportfs -v
@@ -178,16 +178,7 @@ sudo mount -a
 
 # 📘 Serveis 3 i 4: DNS i Nginx
 
-## 📚 Taula de Continguts
-1. [Instal·lació de DNS](#-instal·lació-de-dns)
-2. [Instal·lació de Nginx](#-instal·lació-de-nginx)  
-3. [Configuració DNS](#%EF%B8%8F-configuració-dns)  
-4. [Configuració Nginx](#-configuració-nginx)  
-5. [Integració DNS + Nginx](#-integració-dns--nginx)
-
----
-
-## 🔧 Instal·lació de DNS
+### 🔧 Instal·lació de DNS
 ```bash
 # Actualitzar repositoris
 sudo apt update
@@ -198,6 +189,8 @@ sudo apt install bind9 bind9utils bind9-doc
 # Verificar instal·lació
 systemctl status bind9
 ```
+![image](https://github.com/user-attachments/assets/9226571e-0e84-450a-923f-2b5af94450fb)
+
 ### 📁 Estructura d'Arxius DNS
 ```
 /etc/bind/
@@ -211,7 +204,7 @@ systemctl status bind9
 
 ---
 
-## 🌐 Instal·lació de Nginx
+### 🌐 Instal·lació de Nginx
 
 ```bash
 # Actualitzar repositoris
@@ -227,6 +220,8 @@ sudo systemctl enable nginx
 # Verificar estat
 sudo systemctl status nginx
 ```
+![image](https://github.com/user-attachments/assets/55b1214c-afbb-4fb4-abd6-cc166712e219)
+
 ### 📁 Estructura d'Arxius Nginx
 ```
 /etc/nginx/
@@ -241,98 +236,24 @@ sudo systemctl status nginx
 
 ## ⚙️ Configuració DNS
 
-### 🔧 Configuració Principal (`/etc/bind/named.conf.options`)
-```bind
-options {
-    directory "/var/cache/bind";
-    
-    // Configurar forwarders (DNS públics)
-    forwarders {
-        8.8.8.8;
-        8.8.4.4;
-        1.1.1.1;
-    };
-    
-    // Configuracions de seguretat
-    allow-recursion { localhost; 192.168.1.0/24; };
-    allow-query { localhost; 192.168.1.0/24; };
-    
-    // IPv6
-    listen-on-v6 { any; };
-    
-    // Deshabilitar transferències de zona
-    allow-transfer { none; };
-};
-```
 
 ### � Configuració de Zones (`/etc/bind/named.conf.local`)
-```bind
-// Zona directa
-zone "example.com" {
-    type master;
-    file "/etc/bind/zones/db.example.com";
-};
+![image](https://github.com/user-attachments/assets/3de75146-b972-483f-9868-41a374356108)
 
-// Zona inversa
-zone "1.168.192.in-addr.arpa" {
-    type master;
-    file "/etc/bind/zones/db.192.168.1";
-};
-```
 
-### 📝 Arxiu de Zona Directa (`/etc/bind/zones/db.example.com`)
-```bind
-$TTL    604800
-@       IN      SOA     ns1.example.com. admin.example.com. (
-                        2024052701      ; Serial
-                        604800          ; Refresh
-                        86400           ; Retry
-                        2419200         ; Expire
-                        604800 )       ; Negative Cache TTL
+### 📝 Arxiu de Zona Directa (`/etc/bind/db.projecteg4.es`)
+![image](https://github.com/user-attachments/assets/e4c025f3-be6a-46c3-a858-121bbc3a0bc2)
 
-; Servidors de noms
-@       IN      NS      ns1.example.com.
-
-; Registres A
-ns1     IN      A       192.168.1.10
-www     IN      A       192.168.1.20
-web     IN      A       192.168.1.20
-mail    IN      A       192.168.1.30
-
-; Registre MX
-@       IN      MX      10 mail.example.com.
-
-; Registre CNAME
-ftp     IN      CNAME   www.example.com.
-```
 
 ---
 
 ## 🔨 Configuració Nginx
 
-### � Lloc Web Principal (`/etc/nginx/sites-available/default`)
-```nginx
-server {
-    listen 80;
-    listen [::]:80;
-    server_name example.com www.example.com;
-    
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-    
-    location / {
-        try_files $uri $uri/ =404;
-    }
-    
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
-    
-    server_tokens off;
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header X-Content-Type-Options "nosniff" always;
-}
-```
+### � Lloc Web Principal (`/etc/nginx/sites-available/g4_proyecto`)
+![image](https://github.com/user-attachments/assets/fd36da55-9483-4bf9-9d3b-972d23b45d20)
+![image](https://github.com/user-attachments/assets/4e36ea73-98a6-45df-a4dd-226bb87cfdde)
+
+
 
 
 ---
@@ -340,10 +261,10 @@ server {
 ## 🔗 Integració DNS + Nginx
 
 ### 1️⃣ Configurar Registres DNS
-```bind
-www     IN A     192.168.1.20    ; Servidor web principal
-app     IN A     192.168.1.20    ; Aplicació web
-api     IN A     192.168.1.20    ; API
-static  IN A     192.168.1.21    ; Contingut estàtic
-```
----
+![image](https://github.com/user-attachments/assets/28bee0ea-8462-4041-adee-4f83ddac530f)
+
+
+## Resultat Final
+![image](https://github.com/user-attachments/assets/e7573316-1e4f-4245-abf2-79b47a465b29)
+
+
